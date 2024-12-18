@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -52,6 +53,41 @@ class ValidadorHorarioFuncionamentoClinicaTest {
 
         // Execução e Verificação
         assertThrows(ValidacaoException.class, () -> validador.validar(dados));
+    }
+
+    @Test
+    void validar_ConsultaDepoisDoHorarioDeEncerramentoEmDiaDeSemana_LancaValidacaoException() {
+        DadosAgendamentoConsulta dados = criarDadosAgendamentoConsulta(LocalDateTime.of(2023, 6, 1, 18, 1)); // Segunda-feira, 18:01
+
+        assertThrows(ValidacaoException.class, () -> validador.validar(dados));
+    }
+
+    @Test
+    void validar_ConsultaAntesDoHorarioDeAberturaEmDiaDeSemana_LancaValidacaoException() {
+        DadosAgendamentoConsulta dados = criarDadosAgendamentoConsulta(LocalDateTime.of(2023, 6, 1, 6, 59)); // Segunda-feira, 6:59
+
+        assertThrows(ValidacaoException.class, () -> validador.validar(dados));
+    }
+
+    @Test
+    void validar_ConsultaEmDiaDeSemana_NaoDeveLancarExcecao() {
+        DadosAgendamentoConsulta dados = criarDadosAgendamentoConsulta(LocalDateTime.of(2023, 6, 5, 10, 0)); // Segunda-feira, 10:00
+
+        assertDoesNotThrow(() -> validador.validar(dados));
+    }
+
+    @Test
+    void validar_ConsultaNoHorarioDeEncerramento_NaoDeveLancarExcecao() {
+        DadosAgendamentoConsulta dados = criarDadosAgendamentoConsulta(LocalDateTime.of(2023, 6, 1, 18, 0)); // Segunda-feira, 18:00
+
+        assertDoesNotThrow(() -> validador.validar(dados));
+    }
+
+    @Test
+    void validar_ConsultaNoHorarioDeAbertura_NaoDeveLancarExcecao() {
+        DadosAgendamentoConsulta dados = criarDadosAgendamentoConsulta(LocalDateTime.of(2023, 6, 1, 7, 0)); // Segunda-feira, 7:00
+
+        assertDoesNotThrow(() -> validador.validar(dados));
     }
 
     private DadosAgendamentoConsulta criarDadosAgendamentoConsulta(LocalDateTime data) {
